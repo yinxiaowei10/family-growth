@@ -1,0 +1,71 @@
+.game-map-wrapper {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 3px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: #0f172a;
+}
+
+.game-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.map-node-label {
+  font-family: var(--font-hand);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.map-node-current .map-node-label {
+  fill: #FFE082;
+}
+
+.map-node-completed .map-node-label {
+  fill: #E0F2FE;
+}
+
+.map-segment-current {
+  filter: drop-shadow(0 0 6px rgba(255, 140, 0, 0.7));
+}
+
+.map-info-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.map-info-week {
+  font-family: var(--font-hand);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--ink-color);
+  margin-bottom: 6px;
+}
+
+.map-info-reward {
+  font-size: 1rem;
+  color: var(--accent-orange);
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.map-info-date,
+.map-info-status {
+  font-size: 0.85rem;
+  color: var(--muted-color);
+}
+
+#map-info {
+  margin-top: 16px;
+}
+
+.map-container {
+  overflow: visible;
+  padding: 0;
+}
