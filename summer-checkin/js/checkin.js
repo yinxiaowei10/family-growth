@@ -62,12 +62,73 @@ function renderTasks(date, childId = 'tongtong') {
       const taskId = item.dataset.task;
       const cId = item.dataset.child;
       const isCompleted = item.classList.contains('completed');
-      setTaskDone(date, cId, taskId, !isCompleted);
+      const newCompleted = !isCompleted;
+      setTaskDone(date, cId, taskId, newCompleted);
       item.classList.toggle('completed');
-      item.querySelector('.task-checkbox').textContent = isCompleted ? '' : '✓';
+      const checkbox = item.querySelector('.task-checkbox');
+      checkbox.textContent = newCompleted ? '✓' : '';
+
+      if (newCompleted) {
+        checkbox.classList.add('task-bounce');
+        setTimeout(() => checkbox.classList.remove('task-bounce'), 500);
+      }
+
+      const oldPercent = getCurrentPercent();
       updateProgress(date, cId);
+      const newPercent = getCurrentPercent();
+
+      if (oldPercent < 100 && newPercent === 100) {
+        triggerCelebration(cId);
+      }
     });
   });
+}
+
+function getCurrentPercent() {
+  const text = document.querySelector('.progress-text');
+  return text ? parseInt(text.textContent, 10) || 0 : 0;
+}
+
+function triggerCelebration(childId) {
+  const child = CHILDREN[childId];
+  createConfetti();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  overlay.innerHTML = `
+    <div class="celebration-content">
+      <div class="celebration-character">${child.avatar ? `<img src="${child.avatar}" alt="${child.name}">` : '🎉'}</div>
+      <div class="celebration-title">太棒了！</div>
+      <div class="celebration-text">${child.name} 完成了今天所有任务</div>
+      <button class="btn btn-primary celebration-close">继续加油</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('.celebration-close').addEventListener('click', () => {
+    overlay.remove();
+    document.querySelectorAll('.confetti').forEach((c) => c.remove());
+  });
+
+  setTimeout(() => {
+    if (document.body.contains(overlay)) {
+      overlay.remove();
+      document.querySelectorAll('.confetti').forEach((c) => c.remove());
+    }
+  }, 4000);
+}
+
+function createConfetti() {
+  const colors = ['#FFB347', '#87CEEB', '#98D98E', '#FFE082', '#DDA0DD'];
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = Math.random() * 2 + 's';
+    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    document.body.appendChild(confetti);
+  }
 }
 
 function updateProgress(date, childId = 'tongtong') {
@@ -86,6 +147,14 @@ function updateProgress(date, childId = 'tongtong') {
     circle.style.strokeDasharray = `${circumference} ${circumference}`;
     circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
     text.textContent = `${percent}%`;
+
+    if (percent === 100) {
+      circle.style.stroke = '#98D98E';
+      circle.parentElement.classList.add('progress-complete');
+    } else {
+      circle.style.stroke = '';
+      circle.parentElement.classList.remove('progress-complete');
+    }
   }
 }
 
