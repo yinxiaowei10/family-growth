@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FFB347">
+  <title>夏日冒险岛 · 成长星球</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+</head>
+<body>
+  <div class="app-container">
+    <div class="hero">
+      <h1 class="hero-title">🏝️ 夏日冒险岛</h1>
+      <p class="hero-subtitle">成长星球第一站 🌟<br>每天完成任务，和泡泡、团团一起闯关吧！</p>
+      <img src="assets/characters/hero.png" alt="夏日冒险岛" class="hero-image" onerror="this.style.display='none'">
+    </div>
+
+    <div class="paper-card">
+      <h2 class="text-center">选择你的冒险伙伴 🎒</h2>
+      <div class="character-select">
+        <a href="checkin.html?child=tongtong" class="character-card theme-tongtong">
+          <img src="assets/characters/tongtong-bubble.png" alt="桐桐=泡泡">
+          <span class="name">桐桐</span>
+          <span class="role">泡泡 · 10岁 · 四升五</span>
+        </a>
+        <a href="checkin.html?child=songsong" class="character-card theme-songsong">
+          <img src="assets/characters/songsong-tuantuan.png" alt="松松=团团">
+          <span class="name">松松</span>
+          <span class="role">团团 · 4岁 · 幼儿园</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="paper-card">
+      <h2 class="text-center">冒险地图 🗺️</h2>
+      <div id="map-container" class="map-container">
+        <div class="empty-state">
+          <p>地图加载中...</p>
+        </div>
+      </div>
+      <div id="map-info" class="mt-2 text-center"></div>
+    </div>
+
+    <div class="paper-card text-center">
+      <h3>本周小贴士 💡</h3>
+      <p id="weekly-tip">完成每天的任务，就能在地图上前进一格，解锁本周奖励哦！</p>
+    </div>
+  </div>
+
+  <nav class="nav-bar">
+    <a href="index.html" class="active">
+      <span class="nav-icon">🪐</span>
+      <span>星球</span>
+    </a>
+    <a href="checkin.html">
+      <span class="nav-icon">✅</span>
+      <span>打卡</span>
+    </a>
+    <a href="badges.html">
+      <span class="nav-icon">🏅</span>
+      <span>徽章</span>
+    </a>
+    <a href="stats.html">
+      <span class="nav-icon">📊</span>
+      <span>数据</span>
+    </a>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/map.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMapPage();
+    });
+  </script>
+</body>
+</html>

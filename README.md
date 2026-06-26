@@ -13,6 +13,8 @@
 
 GitHub Pages 地址：https://yinxiaowei10.github.io/family-growth/summer-checkin/
 
+进入后先到达「成长星球」入口，点击「夏日冒险岛」即可开始打卡。
+
 ### 添加到手机桌面（像 App 一样使用）
 
 1. 用 Safari / Chrome 打开上面的地址
