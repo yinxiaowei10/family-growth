@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initServiceWorker();
   initNavigation();
+  renderPortalSnapshot();
 });
 
 function initServiceWorker() {
@@ -26,6 +27,37 @@ function initNavigation() {
       link.classList.add('active');
     }
   });
+}
+
+function renderPortalSnapshot() {
+  const container = document.getElementById('today-snapshot');
+  if (!container) return;
+
+  const today = getToday();
+  const records = getRecords();
+  const grid = container.querySelector('.snapshot-grid');
+  if (!grid) return;
+
+  grid.innerHTML = Object.values(CHILDREN)
+    .map((child) => {
+      const tasks = TASKS[child.id].filter((t) => !t.optional);
+      const dayRecord = records[today]?.[child.id] || {};
+      const done = tasks.filter((t) => dayRecord[t.id]).length;
+      const total = tasks.length;
+      const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      return `
+        <div class="snapshot-card ${child.theme}">
+          <img src="${child.avatar}" alt="${child.name}" onerror="this.style.display='none'">
+          <div class="snapshot-info">
+            <div class="snapshot-name">${child.name}</div>
+            <div class="snapshot-bar"><div class="snapshot-fill" style="width: ${percent}%"></div></div>
+            <div class="snapshot-text">${done}/${total} 完成 · ${percent}%</div>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
 }
 
 function formatDate(date) {

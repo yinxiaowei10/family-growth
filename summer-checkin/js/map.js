@@ -26,6 +26,13 @@ function renderMapPage() {
 
   container.innerHTML = html;
 
+  const currentNode = container.querySelector('.map-node.current');
+  if (currentNode) {
+    setTimeout(() => {
+      currentNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }, 100);
+  }
+
   const infoPanel = document.getElementById('map-info');
   if (infoPanel) {
     const currentNode = MAP_NODES[currentWeek - 1];

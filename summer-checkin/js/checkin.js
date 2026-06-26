@@ -3,22 +3,42 @@ function renderCheckinPage() {
   const today = getToday();
   dateInput.value = today;
 
+  const getActiveChild = () => {
+    const activeTab = document.querySelector('.tab.active');
+    return activeTab?.dataset.child || 'tongtong';
+  };
+
+  const updateUrlChild = (childId) => {
+    const url = new URL(window.location.href);
+    if (childId && childId !== 'tongtong') {
+      url.searchParams.set('child', childId);
+    } else {
+      url.searchParams.delete('child');
+    }
+    window.history.replaceState({}, '', url);
+  };
+
   dateInput.addEventListener('change', () => {
-    renderTasks(dateInput.value);
-    updateProgress(dateInput.value);
+    const childId = getActiveChild();
+    renderTasks(dateInput.value, childId);
+    updateProgress(dateInput.value, childId);
   });
 
   document.querySelectorAll('.tab').forEach((tab) => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
-      renderTasks(dateInput.value, tab.dataset.child);
-      updateProgress(dateInput.value, tab.dataset.child);
+      const childId = tab.dataset.child;
+      updateUrlChild(childId);
+      renderTasks(dateInput.value, childId);
+      updateProgress(dateInput.value, childId);
     });
   });
 
-  renderTasks(today, 'tongtong');
-  updateProgress(today, 'tongtong');
+  const initialChild = getActiveChild();
+  updateUrlChild(initialChild);
+  renderTasks(today, initialChild);
+  updateProgress(today, initialChild);
 }
 
 function renderTasks(date, childId = 'tongtong') {
