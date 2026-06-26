@@ -1,0 +1,3 @@
+[submodule "daily-plan"]
+	path = daily-plan
+	url = https://github.com/yinxiaowei10/daily-plan.git
