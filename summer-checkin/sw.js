@@ -1,23 +1,23 @@
-const CACHE_NAME = 'summer-checkin-v1';
+const CACHE_NAME = 'summer-checkin-v2';
 const STATIC_ASSETS = [
-  '/summer-checkin/',
-  '/summer-checkin/index.html',
-  '/summer-checkin/checkin.html',
-  '/summer-checkin/badges.html',
-  '/summer-checkin/stats.html',
-  '/summer-checkin/print.html',
-  '/summer-checkin/manifest.json',
-  '/summer-checkin/css/base.css',
-  '/summer-checkin/css/components.css',
-  '/summer-checkin/css/themes.css',
-  '/summer-checkin/css/print.css',
-  '/summer-checkin/js/data.js',
-  '/summer-checkin/js/storage.js',
-  '/summer-checkin/js/checkin.js',
-  '/summer-checkin/js/map.js',
-  '/summer-checkin/js/badges.js',
-  '/summer-checkin/js/stats.js',
-  '/summer-checkin/js/app.js'
+  './',
+  './index.html',
+  './checkin.html',
+  './badges.html',
+  './stats.html',
+  './print.html',
+  './manifest.json',
+  './css/base.css',
+  './css/components.css',
+  './css/themes.css',
+  './css/print.css',
+  './js/data.js',
+  './js/storage.js',
+  './js/checkin.js',
+  './js/map.js',
+  './js/badges.js',
+  './js/stats.js',
+  './js/app.js'
 ];
 
 self.addEventListener('install', (event) => {

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initServiceWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker
-      .register('/summer-checkin/sw.js')
+      .register('./sw.js')
       .then((reg) => {
         console.log('Service Worker 注册成功', reg.scope);
       })
