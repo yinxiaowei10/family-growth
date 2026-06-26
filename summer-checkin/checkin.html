@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FFB347">
+  <title>每日打卡 - 暑假冒险岛</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+</head>
+<body class="theme-tongtong">
+  <div class="app-container page-content">
+    <div class="paper-card">
+      <h1 class="text-center">✅ 每日打卡</h1>
+
+      <div class="date-picker">
+        <button class="btn btn-small" id="prev-date">◀</button>
+        <input type="date" id="checkin-date">
+        <button class="btn btn-small" id="next-date">▶</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-child="tongtong">桐桐</button>
+        <button class="tab" data-child="songsong">松松</button>
+      </div>
+
+      <div class="progress-ring">
+        <svg width="120" height="120">
+          <circle class="progress-ring-bg" cx="60" cy="60" r="52"></circle>
+          <circle class="progress-ring-fill" cx="60" cy="60" r="52"></circle>
+        </svg>
+        <div class="progress-text">0%</div>
+      </div>
+
+      <div id="task-list" class="task-list">
+        <div class="empty-state">
+          <p>任务加载中...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-bar">
+    <a href="index.html">
+      <span class="nav-icon">🏠</span>
+      <span>首页</span>
+    </a>
+    <a href="checkin.html" class="active">
+      <span class="nav-icon">✅</span>
+      <span>打卡</span>
+    </a>
+    <a href="badges.html">
+      <span class="nav-icon">🏅</span>
+      <span>徽章</span>
+    </a>
+    <a href="stats.html">
+      <span class="nav-icon">📊</span>
+      <span>数据</span>
+    </a>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/checkin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const childFromUrl = urlParams.get('child');
+      const dateInput = document.getElementById('checkin-date');
+
+      document.querySelectorAll('.tab').forEach((tab) => {
+        tab.classList.remove('active');
+        if (tab.dataset.child === (childFromUrl || 'tongtong')) {
+          tab.classList.add('active');
+        }
+      });
+
+      dateInput.value = getToday();
+
+      document.getElementById('prev-date').addEventListener('click', () => {
+        const d = new Date(dateInput.value);
+        d.setDate(d.getDate() - 1);
+        dateInput.value = formatDate(d);
+        dateInput.dispatchEvent(new Event('change'));
+      });
+
+      document.getElementById('next-date').addEventListener('click', () => {
+        const d = new Date(dateInput.value);
+        d.setDate(d.getDate() + 1);
+        dateInput.value = formatDate(d);
+        dateInput.dispatchEvent(new Event('change'));
+      });
+
+      renderCheckinPage();
+
+      const activeTab = document.querySelector('.tab.active');
+      const activeChild = activeTab ? activeTab.dataset.child : 'tongtong';
+      renderTasks(dateInput.value, activeChild);
+      updateProgress(dateInput.value, activeChild);
+    });
+  </script>
+</body>
+</html>

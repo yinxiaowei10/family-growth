@@ -1,0 +1,98 @@
+@media print {
+  body {
+    background: white;
+    font-size: 12pt;
+  }
+
+  .nav-bar,
+  .export-buttons,
+  .btn,
+  .date-picker button,
+  .tabs {
+    display: none !important;
+  }
+
+  .app-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .paper-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+    transform: none !important;
+  }
+
+  .print-weekly-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+
+  .print-weekly-table th,
+  .print-weekly-table td {
+    border: 1px solid #333;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .print-weekly-table th {
+    background: #f5f5f5;
+    font-weight: bold;
+  }
+
+  .print-check {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #333;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+}
+
+.print-weekly-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+.print-weekly-table th,
+.print-weekly-table td {
+  border: 2px solid var(--border-color);
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.print-weekly-table th {
+  background: var(--accent-yellow);
+  font-family: var(--font-hand);
+}
+
+.print-task-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.print-check {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  flex-shrink: 0;
+}

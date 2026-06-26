@@ -1,0 +1,72 @@
+.theme-tongtong {
+  --child-primary: var(--accent-blue);
+  --child-secondary: var(--accent-purple);
+  --child-bg: #F0F8FF;
+}
+
+.theme-songsong {
+  --child-primary: var(--accent-orange);
+  --child-secondary: var(--accent-green);
+  --child-bg: #FFF8F0;
+}
+
+.theme-tongtong .paper-card,
+.theme-tongtong .task-item,
+.theme-tongtong .badge-item {
+  border-color: #5DADE2;
+}
+
+.theme-tongtong .tab.active {
+  background: #F0F8FF;
+  border-bottom-color: #F0F8FF;
+}
+
+.theme-tongtong .btn-primary {
+  background: var(--accent-blue);
+}
+
+.theme-songsong .paper-card,
+.theme-songsong .task-item,
+.theme-songsong .badge-item {
+  border-color: #E67E22;
+}
+
+.theme-songsong .tab.active {
+  background: #FFF8F0;
+  border-bottom-color: #FFF8F0;
+}
+
+.theme-songsong .btn-primary {
+  background: var(--accent-orange);
+}
+
+.child-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.child-header img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background: var(--paper-color);
+}
+
+.child-header .child-info {
+  flex: 1;
+}
+
+.child-header .child-name {
+  font-family: var(--font-hand);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.child-header .child-meta {
+  font-size: 0.8rem;
+  color: var(--muted-color);
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FFB347">
+  <title>徽章墙 - 暑假冒险岛</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+</head>
+<body>
+  <div class="app-container page-content">
+    <div class="paper-card">
+      <h1 class="text-center">🏅 徽章墙</h1>
+
+      <div class="tabs">
+        <button class="tab active" id="badge-child-select" data-value="tongtong" onclick="switchBadgeChild('tongtong')">桐桐</button>
+        <button class="tab" onclick="switchBadgeChild('songsong')">松松</button>
+      </div>
+
+      <div id="badges-container">
+        <div class="empty-state">
+          <p>徽章加载中...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-bar">
+    <a href="index.html">
+      <span class="nav-icon">🏠</span>
+      <span>首页</span>
+    </a>
+    <a href="checkin.html">
+      <span class="nav-icon">✅</span>
+      <span>打卡</span>
+    </a>
+    <a href="badges.html" class="active">
+      <span class="nav-icon">🏅</span>
+      <span>徽章</span>
+    </a>
+    <a href="stats.html">
+      <span class="nav-icon">📊</span>
+      <span>数据</span>
+    </a>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/badges.js"></script>
+  <script>
+    let currentBadgeChild = 'tongtong';
+
+    function switchBadgeChild(childId) {
+      currentBadgeChild = childId;
+      document.querySelectorAll('.tab').forEach((tab, index) => {
+        tab.classList.toggle('active', (childId === 'tongtong' && index === 0) || (childId === 'songsong' && index === 1));
+      });
+      const records = getRecords();
+      renderBadgesForChild(childId, records, document.getElementById('badges-container'));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderBadgesPage();
+    });
+  </script>
+</body>
+</html>
