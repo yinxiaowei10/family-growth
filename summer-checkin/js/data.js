@@ -111,58 +111,112 @@ let TASKS = JSON.parse(JSON.stringify(DEFAULT_TASKS));
 
 const BADGES = [
   {
+    id: 'first-task',
+    name: '第一次',
+    icon: '🌱',
+    condition: (records, childId) => countAnyTaskCompleted(records, childId) >= 1,
+    progress: (records, childId) => ({ current: Math.min(countAnyTaskCompleted(records, childId), 1), total: 1 })
+  },
+  {
     id: 'streak-3',
     name: '连续3天',
     icon: '🔥',
-    condition: (records, childId) => getMaxStreak(records, childId) >= 3
+    condition: (records, childId) => getMaxStreak(records, childId) >= 3,
+    progress: (records, childId) => ({ current: Math.min(getMaxStreak(records, childId), 3), total: 3 })
   },
   {
     id: 'streak-7',
     name: '连续7天',
     icon: '🌟',
-    condition: (records, childId) => getMaxStreak(records, childId) >= 7
+    condition: (records, childId) => getMaxStreak(records, childId) >= 7,
+    progress: (records, childId) => ({ current: Math.min(getMaxStreak(records, childId), 7), total: 7 })
   },
   {
     id: 'streak-14',
     name: '连续14天',
     icon: '🏆',
-    condition: (records, childId) => getMaxStreak(records, childId) >= 14
+    condition: (records, childId) => getMaxStreak(records, childId) >= 14,
+    progress: (records, childId) => ({ current: Math.min(getMaxStreak(records, childId), 14), total: 14 })
   },
   {
-    id: 'outdoor-master',
-    name: '运动达人',
-    icon: '☀️',
-    condition: (records, childId) => countTaskCompleted(records, childId, 'outdoor') >= 20
-  },
-  {
-    id: 'reading-master',
-    name: '阅读达人',
-    icon: '📚',
-    condition: (records, childId) => countTaskCompleted(records, childId, 'reading') >= 20
-  },
-  {
-    id: 'writing-master',
-    name: '写作之星',
-    icon: '✍️',
-    condition: (records, childId) => countTaskCompleted(records, childId, 'writing') >= 15
-  },
-  {
-    id: 'english-master',
-    name: '英语小能手',
-    icon: '🔤',
-    condition: (records, childId) => countTaskCompleted(records, childId, 'english') >= 20 || countTaskCompleted(records, childId, 'abcreading') >= 20
-  },
-  {
-    id: 'math-master',
-    name: '数学小天才',
-    icon: '🔢',
-    condition: (records, childId) => countTaskCompleted(records, childId, 'math') >= 20 || countTaskCompleted(records, childId, 'mathcamp') >= 20
+    id: 'perfect-day',
+    name: '完美一天',
+    icon: '✨',
+    condition: (records, childId) => getCompletedDays(records, childId) >= 1,
+    progress: (records, childId) => ({ current: Math.min(getCompletedDays(records, childId), 1), total: 1 })
   },
   {
     id: 'halfway',
     name: '暑假过半',
     icon: '🎯',
-    condition: (records, childId) => getCompletedDays(records, childId) >= 28
+    condition: (records, childId) => getCompletedDays(records, childId) >= 28,
+    progress: (records, childId) => ({ current: Math.min(getCompletedDays(records, childId), 28), total: 28 })
+  },
+  {
+    id: 'outdoor-master',
+    name: '运动达人',
+    icon: '☀️',
+    condition: (records, childId) => countCategoryCompleted(records, childId, 'health') >= 20,
+    progress: (records, childId) => ({ current: Math.min(countCategoryCompleted(records, childId, 'health'), 20), total: 20 })
+  },
+  {
+    id: 'reading-master',
+    name: '阅读达人',
+    icon: '📚',
+    condition: (records, childId) => countCategoryCompleted(records, childId, 'chinese') >= 20,
+    progress: (records, childId) => ({ current: Math.min(countCategoryCompleted(records, childId, 'chinese'), 20), total: 20 })
+  },
+  {
+    id: 'writing-master',
+    name: '写作之星',
+    icon: '✍️',
+    condition: (records, childId) => countTaskCompleted(records, childId, 'writing') >= 15,
+    progress: (records, childId) => ({ current: Math.min(countTaskCompleted(records, childId, 'writing'), 15), total: 15 })
+  },
+  {
+    id: 'english-master',
+    name: '英语小能手',
+    icon: '🔤',
+    condition: (records, childId) => countCategoryCompleted(records, childId, 'english') >= 20,
+    progress: (records, childId) => ({ current: Math.min(countCategoryCompleted(records, childId, 'english'), 20), total: 20 })
+  },
+  {
+    id: 'math-master',
+    name: '数学小天才',
+    icon: '🔢',
+    condition: (records, childId) => countCategoryCompleted(records, childId, 'math') >= 20,
+    progress: (records, childId) => ({ current: Math.min(countCategoryCompleted(records, childId, 'math'), 20), total: 20 })
+  },
+  {
+    id: 'explorer',
+    name: '探索家',
+    icon: '🧭',
+    condition: (records, childId) => getCompletedCategories(records, childId) >= 3,
+    progress: (records, childId) => ({ current: Math.min(getCompletedCategories(records, childId), 3), total: 3 })
+  },
+  {
+    id: 'time-saver',
+    name: '时间管理大师',
+    icon: '⏱️',
+    condition: (records, childId) => getTotalSavedMinutes(records, childId) >= 60,
+    progress: (records, childId) => ({ current: Math.min(getTotalSavedMinutes(records, childId), 60), total: 60 })
+  },
+  {
+    id: 'speed-star',
+    name: '闪电侠',
+    icon: '⚡',
+    condition: (records, childId) => hasBigTimeSave(records, childId, 10),
+    progress: (records, childId) => ({ current: hasBigTimeSave(records, childId, 10) ? 1 : 0, total: 1 })
+  },
+  {
+    id: 'collector',
+    name: '徽章收藏家',
+    icon: '🎖️',
+    condition: (records, childId) => getUnlockedBadgeCount(records, childId, 'collector') >= 5,
+    progress: (records, childId) => {
+      const unlocked = getUnlockedBadgeCount(records, childId, 'collector');
+      return { current: Math.min(unlocked, 5), total: 5 };
+    }
   }
 ];
 
@@ -223,6 +277,132 @@ function isDayCompleted(dayRecord, childId) {
   return requiredTasks.every((task) => dayRecord[task.id]);
 }
 
+function countAnyTaskCompleted(records, childId) {
+  let count = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt') continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (completed) count++;
+    }
+  }
+  return count;
+}
+
+function countCategoryCompleted(records, childId, category) {
+  let count = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt') continue;
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task || task.category !== category) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (completed) count++;
+    }
+  }
+  return count;
+}
+
+function getCompletedCategories(records, childId) {
+  const categories = new Set();
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt') continue;
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task || !task.category) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (completed) categories.add(task.category);
+    }
+  }
+  return categories.size;
+}
+
+function getTaskActualMinutes(entry, task) {
+  if (typeof entry === 'object' && entry.completed) {
+    return entry.actualMinutes ?? task?.estimatedMinutes ?? 0;
+  }
+  if (entry === true) {
+    return task?.estimatedMinutes ?? 0;
+  }
+  return 0;
+}
+
+function getTotalSavedMinutes(records, childId) {
+  let saved = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt') continue;
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (!completed) continue;
+      const actual = getTaskActualMinutes(entry, task);
+      saved += task.estimatedMinutes - actual;
+    }
+  }
+  return saved;
+}
+
+function hasBigTimeSave(records, childId, threshold = 10) {
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt') continue;
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (!completed) continue;
+      const actual = getTaskActualMinutes(entry, task);
+      if (task.estimatedMinutes - actual >= threshold) return true;
+    }
+  }
+  return false;
+}
+
+function calculatePoints(records, childId) {
+  let points = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt') continue;
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (!completed) continue;
+      points += 10;
+      const actual = getTaskActualMinutes(entry, task);
+      const saved = task.estimatedMinutes - actual;
+      if (saved >= 5) {
+        points += 5;
+      } else if (saved >= -2) {
+        points += 2;
+      }
+    }
+  }
+  points += Math.floor(getMaxStreak(records, childId) / 3) * 20;
+  return points;
+}
+
+function getUnlockedBadgeCount(records, childId, excludeId = null) {
+  return BADGES.filter((b) => b.id !== excludeId && b.condition(records, childId)).length;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     SUMMER_START,
@@ -235,7 +415,14 @@ if (typeof module !== 'undefined' && module.exports) {
     MAP_NODES,
     getMaxStreak,
     countTaskCompleted,
+    countAnyTaskCompleted,
+    countCategoryCompleted,
+    getCompletedCategories,
     getCompletedDays,
-    isDayCompleted
+    isDayCompleted,
+    getTotalSavedMinutes,
+    hasBigTimeSave,
+    calculatePoints,
+    getUnlockedBadgeCount
   };
 }

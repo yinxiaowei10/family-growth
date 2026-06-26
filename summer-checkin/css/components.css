@@ -437,6 +437,32 @@
   line-height: 1.3;
 }
 
+.badge-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #E0E0E0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.badge-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.badge-progress-text {
+  font-size: 0.65rem;
+  color: var(--muted-color);
+  margin-top: 2px;
+}
+
+.badge-item.locked .badge-progress-fill {
+  background: #BDBDBD;
+}
+
 .stat-card {
   display: flex;
   justify-content: space-between;

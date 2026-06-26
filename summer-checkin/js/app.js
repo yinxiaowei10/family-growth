@@ -46,6 +46,7 @@ function renderPortalSnapshot() {
       const done = tasks.filter((t) => dayRecord[t.id]).length;
       const total = tasks.length;
       const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+      const points = calculatePoints(records, child.id);
 
       return `
         <div class="snapshot-card ${child.theme}">
@@ -53,7 +54,7 @@ function renderPortalSnapshot() {
           <div class="snapshot-info">
             <div class="snapshot-name">${child.name}</div>
             <div class="snapshot-bar"><div class="snapshot-fill" style="width: ${percent}%"></div></div>
-            <div class="snapshot-text">${done}/${total} 完成 · ${percent}%</div>
+            <div class="snapshot-text">${done}/${total} 完成 · ${percent}% · ⭐ ${points}</div>
           </div>
         </div>
       `;

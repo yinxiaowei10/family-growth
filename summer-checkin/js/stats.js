@@ -63,11 +63,13 @@ function renderStatsForChild(childId, records, container) {
   taskStatsHtml += '</div>';
 
   const streak = getMaxStreak(records, childId);
-  const { totalEstimated, totalActual, completedCount } = getTimeSummary(records, childId);
+  const { totalEstimated, totalActual } = getTimeSummary(records, childId);
   const diff = totalActual - totalEstimated;
   let timeSummaryText = '和预估差不多';
   if (diff < -2) timeSummaryText = `节省了 ${Math.abs(diff)} 分钟 ⚡`;
   else if (diff > 2) timeSummaryText = `多用了 ${diff} 分钟 🐢`;
+  const points = calculatePoints(records, childId);
+  const unlockedBadges = BADGES.filter((b) => b.condition(records, childId)).length;
 
   container.innerHTML = `
     <div class="child-header mb-2">
@@ -75,6 +77,14 @@ function renderStatsForChild(childId, records, container) {
       <div class="child-info">
         <div class="child-name">${child.name} 的数据统计</div>
       </div>
+    </div>
+    <div class="paper-card stat-card mb-2">
+      <div>⭐ 成长积分</div>
+      <div class="stat-value">${points}</div>
+    </div>
+    <div class="paper-card stat-card mb-2">
+      <div>🎖️ 徽章解锁</div>
+      <div class="stat-value">${unlockedBadges}/${BADGES.length}</div>
     </div>
     <div class="paper-card stat-card mb-2">
       <div>📅 打卡天数 / 总记录天数</div>
