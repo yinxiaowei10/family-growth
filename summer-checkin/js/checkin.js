@@ -27,7 +27,10 @@ function renderTasks(date, childId = 'tongtong') {
   const tasks = TASKS[childId];
   const dayRecord = getDayRecord(date, childId);
 
-  document.body.className = document.body.className.replace(/theme-\w+/g, '') + ' ' + child.theme;
+  document.body.className = document.body.className.replace(/theme-\w+/g, '').replace(/young-child-mode/g, '') + ' ' + child.theme;
+  if (childId === 'songsong') {
+    document.body.classList.add('young-child-mode');
+  }
 
   const headerHtml = `
     <div class="child-header">
@@ -45,7 +48,7 @@ function renderTasks(date, childId = 'tongtong') {
       return `
         <div class="task-item ${completed ? 'completed' : ''}" data-task="${task.id}" data-child="${childId}">
           <div class="task-checkbox">${completed ? '✓' : ''}</div>
-          <div class="task-text">${task.icon} ${task.text}</div>
+          <div class="task-text"><span class="task-icon">${task.icon}</span>${task.text}</div>
           <div class="task-duration">${task.duration}</div>
         </div>
       `;

@@ -159,6 +159,12 @@
   font-size: 0.95rem;
 }
 
+.task-icon {
+  font-size: 1.2rem;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
 .task-duration {
   font-size: 0.75rem;
   color: var(--muted-color);
@@ -345,4 +351,62 @@
   max-width: 160px;
   margin-bottom: 16px;
   opacity: 0.7;
+}
+
+/* 低龄儿童模式（松松 4岁） */
+.young-child-mode .child-header img {
+  width: 80px;
+  height: 80px;
+}
+
+.young-child-mode .child-name {
+  font-size: 1.8rem;
+}
+
+.young-child-mode .child-meta {
+  font-size: 0.9rem;
+}
+
+.young-child-mode .task-list {
+  gap: 14px;
+}
+
+.young-child-mode .task-item {
+  padding: 18px 16px;
+  border-radius: 20px;
+}
+
+.young-child-mode .task-checkbox {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  font-size: 1.6rem;
+}
+
+.young-child-mode .task-text {
+  font-size: 1.15rem;
+  font-weight: bold;
+}
+
+.young-child-mode .task-text .task-icon {
+  font-size: 1.6rem;
+  margin-right: 8px;
+}
+
+.young-child-mode .task-duration {
+  display: none;
+}
+
+.young-child-mode .progress-ring {
+  width: 150px;
+  height: 150px;
+}
+
+.young-child-mode .progress-ring svg {
+  width: 150px;
+  height: 150px;
+}
+
+.young-child-mode .progress-text {
+  font-size: 2rem;
 }
