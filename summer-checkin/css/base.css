@@ -139,19 +139,22 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   font-size: 0.7rem;
   color: var(--muted-color);
-  padding: 4px 12px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  transition: all 0.2s;
 }
 
 .nav-bar a.active {
   color: var(--ink-color);
   font-weight: bold;
+  background: rgba(255, 179, 71, 0.2);
 }
 
 .nav-bar .nav-icon {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
 }
 
 .page-content {
