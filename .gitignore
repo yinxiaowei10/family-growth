@@ -1,0 +1,6 @@
+# 本地-only 文件，不进入版本库
+HANDOFF.md
+.DS_Store
+*.log
+.env
+node_modules/
