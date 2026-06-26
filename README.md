@@ -1,13 +1,13 @@
-# family-growth
+# 成长星球（family-growth）
 
 家庭成长工具 monorepo。
 
 ## 项目
 
-- **[summer-checkin](./summer-checkin/)**：桐桐和松松的暑假打卡 PWA（冒险地图 + 徽章系统）
+- **[summer-checkin](./summer-checkin/)**：成长星球第一站 · 夏日冒险岛（桐桐和松松的暑假打卡 PWA，含冒险地图 + 徽章系统）
 - **[daily-plan](./daily-plan/)**：日常计划 PWA（git submodule）
 
-## summer-checkin 使用说明
+## 夏日冒险岛使用说明
 
 ### 在线访问
 
@@ -18,7 +18,7 @@ GitHub Pages 地址：https://yinxiaowei10.github.io/family-growth/summer-checki
 1. 用 Safari / Chrome 打开上面的地址
 2. 点击底部「分享」按钮（iOS）或右上角菜单（Android）
 3. 选择「添加到主屏幕」
-4. 桌面上会出现「暑假冒险岛」图标，点击即可全屏使用
+4. 桌面上会出现「成长星球」图标，点击即可全屏使用
 
 ### 每日打卡
 

@@ -1,7 +1,7 @@
 {
-  "name": "暑假冒险岛",
-  "short_name": "暑假打卡",
-  "description": "桐桐和松松的暑假冒险打卡地图",
+  "name": "成长星球",
+  "short_name": "成长星球",
+  "description": "桐桐和松松的成长星球——第一站：夏日冒险岛",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
