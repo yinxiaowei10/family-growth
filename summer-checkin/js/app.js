@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  initTaskLibrary();
   initServiceWorker();
   initNavigation();
   renderPortalSnapshot();

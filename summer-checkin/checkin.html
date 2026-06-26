@@ -41,6 +41,36 @@
         </div>
       </div>
     </div>
+
+    <div class="paper-card mb-3">
+      <div class="section-header">
+        <h2 class="text-center">🧰 打卡项目库</h2>
+        <p class="text-center" style="font-size: 0.8rem; color: var(--muted-color); margin: 0;">点 + 加入今天的打卡，点「编辑」改名称/时间</p>
+      </div>
+      <div id="task-library-list" class="task-library-list mt-2">
+        <div class="empty-state">
+          <p>项目库加载中...</p>
+        </div>
+      </div>
+      <div class="text-center mt-2">
+        <button type="button" class="btn btn-secondary" id="add-task-btn">+ 新建打卡项目</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="time-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 class="time-modal-title">完成用了多久？</h3>
+      <p class="time-modal-estimate"></p>
+      <div class="time-presets"></div>
+      <input type="number" id="actual-minutes-input" class="modal-input" placeholder="自定义分钟数" min="0">
+      <div class="modal-actions">
+        <button type="button" class="btn" id="uncomplete-task">取消完成</button>
+        <button type="button" class="btn" id="cancel-time">取消</button>
+        <button type="button" class="btn btn-secondary" id="skip-time">跳过（按预估算）</button>
+        <button type="button" class="btn btn-primary" id="confirm-time">完成打卡</button>
+      </div>
+    </div>
   </div>
 
   <nav class="nav-bar">
@@ -97,10 +127,15 @@
 
       renderCheckinPage();
 
-      const activeTab = document.querySelector('.tab.active');
-      const activeChild = activeTab ? activeTab.dataset.child : 'tongtong';
-      renderTasks(dateInput.value, activeChild);
-      updateProgress(dateInput.value, activeChild);
+      document.getElementById('add-task-btn').addEventListener('click', () => {
+        const activeChild = document.querySelector('.tab.active')?.dataset.child || 'tongtong';
+        addNewTask(activeChild);
+      });
+
+      document.getElementById('confirm-time').addEventListener('click', confirmTimeModal);
+      document.getElementById('skip-time').addEventListener('click', skipTimeModal);
+      document.getElementById('cancel-time').addEventListener('click', closeTimeModal);
+      document.getElementById('uncomplete-task').addEventListener('click', uncompleteTask);
     });
   </script>
 </body>

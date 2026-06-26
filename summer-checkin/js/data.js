@@ -27,12 +27,13 @@ const CHILDREN = {
   }
 };
 
-const TASKS = {
+const DEFAULT_TASKS = {
   tongtong: [
     {
       id: 'outdoor',
       text: '户外2小时',
       duration: '2小时',
+      estimatedMinutes: 120,
       icon: '☀️',
       category: 'health'
     },
@@ -40,6 +41,7 @@ const TASKS = {
       id: 'english',
       text: '英语输入30分钟',
       duration: '30分钟',
+      estimatedMinutes: 30,
       icon: '🔤',
       category: 'english'
     },
@@ -47,6 +49,7 @@ const TASKS = {
       id: 'reading',
       text: '中文阅读1.5小时',
       duration: '1.5小时',
+      estimatedMinutes: 90,
       icon: '📚',
       category: 'chinese'
     },
@@ -54,13 +57,15 @@ const TASKS = {
       id: 'math',
       text: '数学20分钟',
       duration: '20分钟',
+      estimatedMinutes: 20,
       icon: '🔢',
       category: 'math'
     },
     {
       id: 'writing',
       text: '自由写作',
-      duration: '每天写一点',
+      duration: '约15分钟',
+      estimatedMinutes: 15,
       icon: '✍️',
       category: 'chinese'
     },
@@ -68,6 +73,7 @@ const TASKS = {
       id: 'nap',
       text: '午睡30-40分钟',
       duration: '30-40分钟',
+      estimatedMinutes: 35,
       icon: '😴',
       category: 'health',
       optional: true
@@ -78,6 +84,7 @@ const TASKS = {
       id: 'outdoor',
       text: '户外2小时+',
       duration: '2小时+',
+      estimatedMinutes: 120,
       icon: '☀️',
       category: 'health'
     },
@@ -85,6 +92,7 @@ const TASKS = {
       id: 'mathcamp',
       text: '数学营补学',
       duration: '25-30分钟',
+      estimatedMinutes: 27,
       icon: '🔢',
       category: 'math'
     },
@@ -92,11 +100,14 @@ const TASKS = {
       id: 'abcreading',
       text: 'ABC Reading打卡',
       duration: '15-20分钟',
+      estimatedMinutes: 17,
       icon: '🔤',
       category: 'english'
     }
   ]
 };
+
+let TASKS = JSON.parse(JSON.stringify(DEFAULT_TASKS));
 
 const BADGES = [
   {
@@ -218,6 +229,7 @@ if (typeof module !== 'undefined' && module.exports) {
     SUMMER_END,
     TOTAL_WEEKS,
     CHILDREN,
+    DEFAULT_TASKS,
     TASKS,
     BADGES,
     MAP_NODES,

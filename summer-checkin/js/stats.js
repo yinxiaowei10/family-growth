@@ -63,6 +63,11 @@ function renderStatsForChild(childId, records, container) {
   taskStatsHtml += '</div>';
 
   const streak = getMaxStreak(records, childId);
+  const { totalEstimated, totalActual, completedCount } = getTimeSummary(records, childId);
+  const diff = totalActual - totalEstimated;
+  let timeSummaryText = '和预估差不多';
+  if (diff < -2) timeSummaryText = `节省了 ${Math.abs(diff)} 分钟 ⚡`;
+  else if (diff > 2) timeSummaryText = `多用了 ${diff} 分钟 🐢`;
 
   container.innerHTML = `
     <div class="child-header mb-2">
@@ -83,8 +88,41 @@ function renderStatsForChild(childId, records, container) {
       <div>🔥 最长连续打卡</div>
       <div class="stat-value">${streak}天</div>
     </div>
+    <div class="paper-card stat-card mb-2">
+      <div>⏱️ 实际 / 预估用时</div>
+      <div class="stat-value">${totalActual}/${totalEstimated}分</div>
+    </div>
+    <div class="paper-card stat-card mb-2">
+      <div>🚀 效率对比</div>
+      <div class="stat-value" style="font-size: 1.2rem;">${timeSummaryText}</div>
+    </div>
     ${taskStatsHtml}
   `;
+}
+
+function getTimeSummary(records, childId) {
+  let totalEstimated = 0;
+  let totalActual = 0;
+  let completedCount = 0;
+
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt') continue;
+      const entry = dayRecord[taskId];
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task) continue;
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (!completed) continue;
+      completedCount++;
+      const actual = typeof entry === 'object' ? entry.actualMinutes : task.estimatedMinutes;
+      totalEstimated += task.estimatedMinutes;
+      totalActual += actual || task.estimatedMinutes;
+    }
+  }
+
+  return { totalEstimated, totalActual, completedCount };
 }
 
 if (typeof module !== 'undefined' && module.exports) {
