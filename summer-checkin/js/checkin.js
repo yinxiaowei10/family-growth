@@ -1,4 +1,12 @@
-let currentEditTaskId = null;
+const PERIODS = {
+  morning: { label: '上午', icon: '☀️' },
+  noon: { label: '中午', icon: '🍎' },
+  afternoon: { label: '下午', icon: '🌤️' },
+  evening: { label: '晚上', icon: '🌙' }
+};
+
+let selectedPeriod = 'morning';
+let pendingGuess = null;
 let pendingComplete = null;
 
 function renderCheckinPage() {
@@ -25,8 +33,9 @@ function renderCheckinPage() {
 
   dateInput.addEventListener('change', () => {
     const childId = getActiveChild();
-    renderTasks(dateInput.value, childId);
-    renderTaskLibrary(dateInput.value, childId);
+    renderPlan(dateInput.value, childId);
+    renderActivityLibrary(dateInput.value, childId);
+    updateProgress(dateInput.value, childId);
   });
 
   document.querySelectorAll('.tab').forEach((tab) => {
@@ -35,33 +44,37 @@ function renderCheckinPage() {
       tab.classList.add('active');
       const childId = tab.dataset.child;
       updateUrlChild(childId);
-      renderTasks(dateInput.value, childId);
-      renderTaskLibrary(dateInput.value, childId);
+      document.body.className = document.body.className.replace(/theme-\w+/g, '') + ' ' + CHILDREN[childId].theme;
+      if (childId === 'songsong') {
+        document.body.classList.add('young-child-mode');
+      }
+      renderPlan(dateInput.value, childId);
+      renderActivityLibrary(dateInput.value, childId);
+      updateProgress(dateInput.value, childId);
     });
   });
 
   const initialChild = getActiveChild();
   updateUrlChild(initialChild);
-  renderTasks(today, initialChild);
-  renderTaskLibrary(today, initialChild);
-}
-
-function renderTasks(date, childId = 'tongtong') {
-  const container = document.getElementById('task-list');
-  const child = CHILDREN[childId];
-  const plan = getPlan(date, childId);
-  const tasks = plan
-    .map((id) => TASKS[childId]?.find((t) => t.id === id))
-    .filter(Boolean);
-  const dayRecord = getDayRecord(date, childId);
-
-  document.body.className = document.body.className.replace(/theme-\w+/g, '').replace(/young-child-mode/g, '') + ' ' + child.theme;
-  if (childId === 'songsong') {
+  document.body.className = document.body.className.replace(/theme-\w+/g, '') + ' ' + CHILDREN[initialChild].theme;
+  if (initialChild === 'songsong') {
     document.body.classList.add('young-child-mode');
   }
+  renderPlan(today, initialChild);
+  renderActivityLibrary(today, initialChild);
+  updateProgress(today, initialChild);
+}
 
-  const headerHtml = `
-    <div class="child-header">
+function renderPlan(date, childId = 'tongtong') {
+  const container = document.getElementById('plan-container');
+  if (!container) return;
+
+  const child = CHILDREN[childId];
+  const plan = getPlan(date, childId);
+  const dayRecord = getDayRecord(date, childId);
+
+  let html = `
+    <div class="child-header paper-card mb-2">
       <img src="${child.avatar}" alt="${child.name}" onerror="this.style.display='none'">
       <div class="child-info">
         <div class="child-name">${child.name}</div>
@@ -70,32 +83,57 @@ function renderTasks(date, childId = 'tongtong') {
     </div>
   `;
 
-  const tasksHtml = tasks
-    .map((task) => {
-      const record = dayRecord[task.id];
-      const completed = !!record?.completed;
-      const actualMinutes = record?.actualMinutes;
-      const diffHtml = completed ? formatTimeDiff(task.estimatedMinutes, actualMinutes) : '';
-      return `
-        <div class="task-item ${completed ? 'completed' : ''}" data-task="${task.id}" data-child="${childId}">
-          <div class="task-checkbox">${completed ? '✓' : ''}</div>
-          <div class="task-text">
-            <div><span class="task-icon">${task.icon}</span>${task.text}</div>
-            ${completed ? `<div class="task-actual">实际 ${actualMinutes} 分钟 · ${diffHtml}</div>` : `<div class="task-estimate">预估 ${task.estimatedMinutes} 分钟</div>`}
+  for (const [key, info] of Object.entries(PERIODS)) {
+    const isSelected = selectedPeriod === key;
+    const taskIds = plan[key] || [];
+    const tasksHtml = taskIds
+      .map((taskId) => {
+        const task = TASKS[childId]?.find((t) => t.id === taskId);
+        if (!task) return '';
+        const record = dayRecord[taskId];
+        const completed = !!record?.completed;
+        const guessed = record?.guessedMinutes ?? task.estimatedMinutes;
+        const actual = record?.actualMinutes;
+        const diffHtml = completed ? formatTimeDiff(guessed, actual) : '';
+
+        return `
+          <div class="task-item ${completed ? 'completed' : ''}" data-task="${task.id}" data-child="${childId}">
+            <div class="task-checkbox">${completed ? '✓' : ''}</div>
+            <div class="task-text">
+              <div><span class="task-icon">${task.icon}</span>${task.text}</div>
+              ${completed
+                ? `<div class="task-actual">猜 ${guessed} 分 → 用了 ${actual} 分 · ${diffHtml}</div>`
+                : `<div class="task-estimate">猜 ${guessed} 分钟</div>`}
+            </div>
           </div>
+        `;
+      })
+      .join('');
+
+    const emptyHtml = taskIds.length === 0
+      ? `<div class="period-empty">点底部卡片库，把活动加进「${info.label}」</div>`
+      : '';
+
+    html += `
+      <div class="paper-card period-card ${isSelected ? 'period-selected' : ''}" data-period="${key}">
+        <div class="period-header">
+          <div class="period-title"><span class="period-icon">${info.icon}</span>${info.label}</div>
+          <button type="button" class="btn btn-small period-select-btn" onclick="selectPeriod('${key}')">${isSelected ? '✓ 当前' : '选这个'}</button>
         </div>
-      `;
-    })
-    .join('');
+        <div class="period-tasks">${tasksHtml || emptyHtml}</div>
+      </div>
+    `;
+  }
 
-  const emptyHtml = tasks.length === 0
-    ? `<div class="empty-state">
-         <p>今天还没有安排打卡项目</p>
-         <p style="font-size: 0.85rem;">去底部的「打卡项目库」里选几个吧 🎯</p>
-       </div>`
-    : '';
+  container.innerHTML = html;
 
-  container.innerHTML = headerHtml + tasksHtml + emptyHtml;
+  container.querySelectorAll('.period-card').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.period-select-btn')) return;
+      const period = card.dataset.period;
+      selectPeriod(period);
+    });
+  });
 
   container.querySelectorAll('.task-item').forEach((item) => {
     item.addEventListener('click', () => {
@@ -106,24 +144,126 @@ function renderTasks(date, childId = 'tongtong') {
   });
 }
 
-function formatTimeDiff(estimated, actual) {
-  const diff = actual - estimated;
-  if (diff < -2) {
-    return `<span class="time-saved">节省了 ${Math.abs(diff)} 分钟 ⚡</span>`;
-  } else if (diff > 2) {
-    return `<span class="time-extra">多用了 ${diff} 分钟 🐢</span>`;
+function renderActivityLibrary(date, childId = 'tongtong') {
+  const container = document.getElementById('activity-library');
+  if (!container) return;
+
+  const tasks = TASKS[childId] || [];
+  const plan = getPlan(date, childId);
+  const taskLocation = {};
+  for (const [period, ids] of Object.entries(plan)) {
+    ids.forEach((id) => {
+      taskLocation[id] = period;
+    });
   }
-  return '<span class="time-match">时间刚好 ✅</span>';
+
+  document.getElementById('selected-period-label').textContent = PERIODS[selectedPeriod].label;
+
+  container.innerHTML = tasks
+    .map((task) => {
+      const location = taskLocation[task.id];
+      const inSelected = location === selectedPeriod;
+      const inOther = location && location !== selectedPeriod;
+      const chipClass = inSelected ? 'added' : inOther ? 'in-other' : '';
+      const badge = inSelected ? '✓' : inOther ? PERIODS[location].label : '+';
+
+      return `
+        <button type="button" class="activity-chip ${chipClass}" onclick="toggleTaskInPeriod('${date}', '${childId}', '${task.id}')">
+          <span class="activity-chip-icon">${task.icon}</span>
+          <span class="activity-chip-text">${task.text}</span>
+          <span class="activity-chip-badge">${badge}</span>
+        </button>
+      `;
+    })
+    .join('');
+}
+
+function selectPeriod(period) {
+  selectedPeriod = period;
+  const dateInput = document.getElementById('checkin-date');
+  const activeChild = document.querySelector('.tab.active')?.dataset.child || 'tongtong';
+  renderPlan(dateInput.value, activeChild);
+  renderActivityLibrary(dateInput.value, activeChild);
+}
+
+function toggleTaskInPeriod(date, childId, taskId) {
+  const plan = getPlan(date, childId);
+  const newPlan = { morning: [...plan.morning], noon: [...plan.noon], afternoon: [...plan.afternoon], evening: [...plan.evening] };
+
+  let currentlyIn = null;
+  for (const [key, ids] of Object.entries(newPlan)) {
+    if (ids.includes(taskId)) {
+      currentlyIn = key;
+      break;
+    }
+  }
+
+  if (currentlyIn === selectedPeriod) {
+    newPlan[selectedPeriod] = newPlan[selectedPeriod].filter((id) => id !== taskId);
+    savePlan(date, childId, newPlan);
+    renderPlan(date, childId);
+    renderActivityLibrary(date, childId);
+    updateProgress(date, childId);
+  } else {
+    if (currentlyIn) {
+      newPlan[currentlyIn] = newPlan[currentlyIn].filter((id) => id !== taskId);
+    }
+    newPlan[selectedPeriod].push(taskId);
+    savePlan(date, childId, newPlan);
+    renderPlan(date, childId);
+    renderActivityLibrary(date, childId);
+    updateProgress(date, childId);
+    openGuessModal(date, childId, taskId);
+  }
+}
+
+function openGuessModal(date, childId, taskId) {
+  const task = TASKS[childId]?.find((t) => t.id === taskId);
+  if (!task) return;
+
+  const modal = document.getElementById('guess-modal');
+  const title = modal.querySelector('.guess-modal-title');
+  const input = document.getElementById('guess-minutes-input');
+  const presets = modal.querySelector('.time-presets');
+
+  title.textContent = `「${task.text}」要多久？`;
+  input.value = task.estimatedMinutes || '';
+
+  const presetValues = [5, 10, 15, 20, 25, 30, 45, 60, 90, 120].filter((m) => m !== task.estimatedMinutes);
+  presetValues.unshift(task.estimatedMinutes);
+  presets.innerHTML = presetValues
+    .slice(0, 8)
+    .map((m) => `<button type="button" class="time-preset" data-min="${m}" onclick="document.getElementById('guess-minutes-input').value='${m}'">${m}分</button>`)
+    .join('');
+
+  pendingGuess = { date, childId, taskId };
+  modal.classList.remove('hidden');
+  input.focus();
+}
+
+function closeGuessModal() {
+  document.getElementById('guess-modal').classList.add('hidden');
+  pendingGuess = null;
+}
+
+function confirmGuessModal() {
+  if (!pendingGuess) return;
+  const { date, childId, taskId } = pendingGuess;
+  const input = document.getElementById('guess-minutes-input');
+  const minutes = parseInt(input.value, 10);
+  if (Number.isNaN(minutes) || minutes < 0) {
+    alert('请输入有效的分钟数');
+    return;
+  }
+  setTaskGuess(date, childId, taskId, minutes);
+  closeGuessModal();
+  renderPlan(date, childId);
 }
 
 function handleTaskClick(date, childId, taskId) {
   const dayRecord = getDayRecord(date, childId);
   const record = dayRecord[taskId];
-  if (record?.completed) {
-    openTimeModal(date, childId, taskId, true);
-  } else {
-    openTimeModal(date, childId, taskId, false);
-  }
+  openTimeModal(date, childId, taskId, !!record?.completed);
 }
 
 function openTimeModal(date, childId, taskId, isEdit) {
@@ -131,31 +271,26 @@ function openTimeModal(date, childId, taskId, isEdit) {
   if (!task) return;
 
   const dayRecord = getDayRecord(date, childId);
-  const existing = dayRecord[taskId];
-  const currentActual = existing?.completed ? existing.actualMinutes : task.estimatedMinutes;
+  const record = dayRecord[taskId];
+  const guessed = record?.guessedMinutes ?? task.estimatedMinutes;
+  const currentActual = record?.completed ? record.actualMinutes : guessed;
 
   const modal = document.getElementById('time-modal');
   const title = modal.querySelector('.time-modal-title');
   const estimateText = modal.querySelector('.time-modal-estimate');
-  const input = modal.querySelector('#actual-minutes-input');
+  const input = document.getElementById('actual-minutes-input');
   const presets = modal.querySelector('.time-presets');
 
   title.textContent = isEdit ? `修改「${task.text}」的实际用时` : `完成「${task.text}」用了多久？`;
-  estimateText.textContent = `预估时间：${task.estimatedMinutes} 分钟`;
+  estimateText.textContent = `你的猜测：${guessed} 分钟`;
   input.value = currentActual || '';
 
-  const presetValues = [10, 15, 20, 25, 30, 45, 60, 90, 120].filter((m) => m !== task.estimatedMinutes);
-  presetValues.unshift(task.estimatedMinutes);
+  const presetValues = [5, 10, 15, 20, 25, 30, 45, 60, 90, 120].filter((m) => m !== guessed);
+  presetValues.unshift(guessed);
   presets.innerHTML = presetValues
     .slice(0, 8)
-    .map((m) => `<button type="button" class="time-preset" data-min="${m}">${m}分</button>`)
+    .map((m) => `<button type="button" class="time-preset" data-min="${m}" onclick="document.getElementById('actual-minutes-input').value='${m}'">${m}分</button>`)
     .join('');
-
-  presets.querySelectorAll('.time-preset').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      input.value = btn.dataset.min;
-    });
-  });
 
   pendingComplete = { date, childId, taskId, isEdit };
   document.getElementById('uncomplete-task').classList.toggle('hidden', !isEdit);
@@ -164,8 +299,7 @@ function openTimeModal(date, childId, taskId, isEdit) {
 }
 
 function closeTimeModal() {
-  const modal = document.getElementById('time-modal');
-  modal.classList.add('hidden');
+  document.getElementById('time-modal').classList.add('hidden');
   pendingComplete = null;
 }
 
@@ -180,11 +314,10 @@ function confirmTimeModal() {
   }
   setTaskDone(date, childId, taskId, true, minutes);
   closeTimeModal();
-  renderTasks(date, childId);
+  renderPlan(date, childId);
   updateProgress(date, childId);
 
-  const percent = getCurrentPercent();
-  if (percent === 100) {
+  if (getCurrentPercent() === 100) {
     triggerCelebration(childId);
   }
 }
@@ -192,14 +325,14 @@ function confirmTimeModal() {
 function skipTimeModal() {
   if (!pendingComplete) return;
   const { date, childId, taskId } = pendingComplete;
-  const task = TASKS[childId]?.find((t) => t.id === taskId);
-  setTaskDone(date, childId, taskId, true, task?.estimatedMinutes ?? 0);
+  const dayRecord = getDayRecord(date, childId);
+  const guessed = dayRecord[taskId]?.guessedMinutes;
+  setTaskDone(date, childId, taskId, true, guessed);
   closeTimeModal();
-  renderTasks(date, childId);
+  renderPlan(date, childId);
   updateProgress(date, childId);
 
-  const percent = getCurrentPercent();
-  if (percent === 100) {
+  if (getCurrentPercent() === 100) {
     triggerCelebration(childId);
   }
 }
@@ -209,7 +342,7 @@ function uncompleteTask() {
   const { date, childId, taskId } = pendingComplete;
   setTaskDone(date, childId, taskId, false);
   closeTimeModal();
-  renderTasks(date, childId);
+  renderPlan(date, childId);
   updateProgress(date, childId);
 }
 
@@ -260,16 +393,33 @@ function createConfetti() {
   }
 }
 
+function formatTimeDiff(guessed, actual) {
+  const diff = actual - guessed;
+  if (diff <= -2) {
+    return '<span class="time-saved">快一点 ⚡</span>';
+  } else if (diff >= 2) {
+    return '<span class="time-extra">久一点 🐢</span>';
+  }
+  return '<span class="time-match">好准 ✅</span>';
+}
+
 function updateProgress(date, childId = 'tongtong') {
   const plan = getPlan(date, childId);
-  const tasks = plan
-    .map((id) => TASKS[childId]?.find((t) => t.id === id))
-    .filter(Boolean);
   const dayRecord = getDayRecord(date, childId);
-  const requiredTasks = tasks.filter((t) => !t.optional);
-  const completedCount = requiredTasks.filter((t) => dayRecord[t.id]?.completed).length;
-  const totalCount = requiredTasks.length;
-  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  let totalRequired = 0;
+  let completedRequired = 0;
+
+  for (const taskIds of Object.values(plan)) {
+    for (const taskId of taskIds) {
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task || task.optional) continue;
+      totalRequired++;
+      if (dayRecord[taskId]?.completed) completedRequired++;
+    }
+  }
+
+  const percent = totalRequired > 0 ? Math.round((completedRequired / totalRequired) * 100) : 0;
 
   const circle = document.querySelector('.progress-ring-fill');
   const text = document.querySelector('.progress-text');
@@ -288,164 +438,6 @@ function updateProgress(date, childId = 'tongtong') {
       circle.parentElement.classList.remove('progress-complete');
     }
   }
-}
-
-function renderTaskLibrary(date, childId = 'tongtong') {
-  const container = document.getElementById('task-library-list');
-  if (!container) return;
-
-  const tasks = TASKS[childId] || [];
-  const plan = getPlan(date, childId);
-
-  container.innerHTML = tasks
-    .map((task) => {
-      const inPlan = plan.includes(task.id);
-      const isEditing = currentEditTaskId === task.id;
-
-      if (isEditing) {
-        return `
-          <div class="library-item library-item-editing" data-task="${task.id}">
-            <div class="library-edit-row">
-              <input type="text" class="library-input library-input-icon" value="${task.icon}" placeholder="图标" maxlength="2">
-              <input type="text" class="library-input library-input-name" value="${escapeHtml(task.text)}" placeholder="任务名称">
-              <input type="number" class="library-input library-input-time" value="${task.estimatedMinutes}" placeholder="分钟">
-            </div>
-            <div class="library-edit-actions">
-              <label class="library-check"><input type="checkbox" class="library-optional" ${task.optional ? 'checked' : ''}> 可选</label>
-              <button type="button" class="btn btn-small btn-primary" onclick="saveTaskEdit('${task.id}', '${childId}')">保存</button>
-              <button type="button" class="btn btn-small" onclick="cancelTaskEdit()">取消</button>
-            </div>
-          </div>
-        `;
-      }
-
-      return `
-        <div class="library-item" data-task="${task.id}">
-          <button type="button" class="library-toggle ${inPlan ? 'active' : ''}" onclick="toggleTaskInPlan('${date}', '${childId}', '${task.id}')" aria-label="加入今日计划">
-            ${inPlan ? '✓' : '+'}
-          </button>
-          <div class="library-info">
-            <div class="library-name"><span class="library-icon">${task.icon}</span>${escapeHtml(task.text)}</div>
-            <div class="library-meta">预估 ${task.estimatedMinutes} 分钟 · ${task.optional ? '可选' : '必做'}</div>
-          </div>
-          <div class="library-actions">
-            <button type="button" class="btn btn-small" onclick="startTaskEdit('${task.id}')">编辑</button>
-            <button type="button" class="btn btn-small btn-danger" onclick="deleteTask('${date}', '${childId}', '${task.id}')">删除</button>
-          </div>
-        </div>
-      `;
-    })
-    .join('');
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function toggleTaskInPlan(date, childId, taskId) {
-  const plan = [...getPlan(date, childId)];
-  const index = plan.indexOf(taskId);
-  if (index >= 0) {
-    plan.splice(index, 1);
-  } else {
-    plan.push(taskId);
-  }
-  savePlan(date, childId, plan);
-  renderTasks(date, childId);
-  renderTaskLibrary(date, childId);
-  updateProgress(date, childId);
-}
-
-function startTaskEdit(taskId) {
-  currentEditTaskId = taskId;
-  const activeChild = document.querySelector('.tab.active')?.dataset.child || 'tongtong';
-  const dateInput = document.getElementById('checkin-date');
-  renderTaskLibrary(dateInput.value, activeChild);
-}
-
-function cancelTaskEdit() {
-  currentEditTaskId = null;
-  const activeChild = document.querySelector('.tab.active')?.dataset.child || 'tongtong';
-  const dateInput = document.getElementById('checkin-date');
-  renderTaskLibrary(dateInput.value, activeChild);
-}
-
-function saveTaskEdit(taskId, childId) {
-  const item = document.querySelector(`.library-item[data-task="${taskId}"]`);
-  if (!item) return;
-
-  const icon = item.querySelector('.library-input-icon').value.trim() || '📝';
-  const text = item.querySelector('.library-input-name').value.trim() || '未命名任务';
-  const estimatedMinutes = parseInt(item.querySelector('.library-input-time').value, 10) || 15;
-  const optional = item.querySelector('.library-optional').checked;
-
-  const library = getTaskLibrary();
-  const tasks = library[childId] || [];
-  const task = tasks.find((t) => t.id === taskId);
-  if (task) {
-    task.icon = icon;
-    task.text = text;
-    task.estimatedMinutes = estimatedMinutes;
-    task.duration = `${estimatedMinutes}分钟`;
-    task.optional = optional;
-  }
-
-  saveTaskLibrary(library);
-  currentEditTaskId = null;
-
-  const dateInput = document.getElementById('checkin-date');
-  const activeChild = document.querySelector('.tab.active')?.dataset.child || childId;
-  renderTasks(dateInput.value, activeChild);
-  renderTaskLibrary(dateInput.value, activeChild);
-  updateProgress(dateInput.value, activeChild);
-}
-
-function deleteTask(date, childId, taskId) {
-  if (!confirm('确定要删除这个打卡项目吗？')) return;
-
-  const library = getTaskLibrary();
-  if (library[childId]) {
-    library[childId] = library[childId].filter((t) => t.id !== taskId);
-    saveTaskLibrary(library);
-  }
-
-  const plan = getPlan(date, childId).filter((id) => id !== taskId);
-  savePlan(date, childId, plan);
-
-  const records = getRecords();
-  if (records[date]?.[childId]?.[taskId]) {
-    delete records[date][childId][taskId];
-    saveRecords(records);
-  }
-
-  renderTasks(date, childId);
-  renderTaskLibrary(date, childId);
-  updateProgress(date, childId);
-}
-
-function addNewTask(childId) {
-  const library = getTaskLibrary();
-  if (!library[childId]) {
-    library[childId] = [];
-  }
-  const newId = 'task_' + Date.now();
-  library[childId].push({
-    id: newId,
-    text: '新任务',
-    icon: '🌟',
-    estimatedMinutes: 15,
-    duration: '15分钟',
-    category: 'custom',
-    optional: false
-  });
-  saveTaskLibrary(library);
-
-  const dateInput = document.getElementById('checkin-date');
-  const activeChild = document.querySelector('.tab.active')?.dataset.child || childId;
-  startTaskEdit(newId);
-  renderTaskLibrary(dateInput.value, activeChild);
 }
 
 if (typeof module !== 'undefined' && module.exports) {

@@ -30,11 +30,18 @@ function normalizeDayRecord(raw, childId) {
       const task = TASKS[childId]?.find((t) => t.id === taskId);
       normalized[taskId] = {
         completed: true,
+        guessedMinutes: task?.estimatedMinutes ?? 0,
         actualMinutes: task?.estimatedMinutes ?? 0,
         completedAt: null
       };
     } else if (val && typeof val === 'object') {
-      normalized[taskId] = val;
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      normalized[taskId] = {
+        completed: !!val.completed,
+        guessedMinutes: val.guessedMinutes ?? task?.estimatedMinutes ?? 0,
+        actualMinutes: val.actualMinutes ?? task?.estimatedMinutes ?? 0,
+        completedAt: val.completedAt || null
+      };
     }
   }
   return normalized;
@@ -46,7 +53,7 @@ function getDayRecord(date, childId) {
   return normalizeDayRecord(raw, childId);
 }
 
-function setTaskDone(date, childId, taskId, done, actualMinutes = null) {
+function setTaskDone(date, childId, taskId, done, actualMinutes = null, guessedMinutes = null) {
   const records = getRecords();
   if (!records[date]) {
     records[date] = {};
@@ -56,14 +63,35 @@ function setTaskDone(date, childId, taskId, done, actualMinutes = null) {
   }
   if (done) {
     const task = TASKS[childId]?.find((t) => t.id === taskId);
+    const existing = records[date][childId][taskId];
     records[date][childId][taskId] = {
       completed: true,
+      guessedMinutes: guessedMinutes ?? existing?.guessedMinutes ?? task?.estimatedMinutes ?? 0,
       actualMinutes: actualMinutes ?? task?.estimatedMinutes ?? 0,
       completedAt: new Date().toISOString()
     };
   } else {
     delete records[date][childId][taskId];
   }
+  saveRecords(records);
+}
+
+function setTaskGuess(date, childId, taskId, guessedMinutes) {
+  const records = getRecords();
+  if (!records[date]) {
+    records[date] = {};
+  }
+  if (!records[date][childId]) {
+    records[date][childId] = {};
+  }
+  const task = TASKS[childId]?.find((t) => t.id === taskId);
+  const existing = records[date][childId][taskId];
+  records[date][childId][taskId] = {
+    completed: existing?.completed || false,
+    guessedMinutes: guessedMinutes ?? task?.estimatedMinutes ?? 0,
+    actualMinutes: existing?.actualMinutes ?? task?.estimatedMinutes ?? 0,
+    completedAt: existing?.completedAt || null
+  };
   saveRecords(records);
 }
 
@@ -136,21 +164,26 @@ function savePlans(plans) {
   }
 }
 
+const EMPTY_PLAN = { morning: [], noon: [], afternoon: [], evening: [] };
+
 function getPlan(date, childId) {
   const plans = getPlans();
   const plan = plans[date]?.[childId];
-  if (plan && plan.length > 0) {
-    return plan;
+  if (plan && typeof plan === 'object' && !Array.isArray(plan)) {
+    return { ...EMPTY_PLAN, ...plan };
   }
-  return TASKS[childId]?.map((t) => t.id) || [];
+  if (Array.isArray(plan) && plan.length > 0) {
+    return { ...EMPTY_PLAN, morning: plan };
+  }
+  return { ...EMPTY_PLAN, morning: TASKS[childId]?.map((t) => t.id) || [] };
 }
 
-function savePlan(date, childId, taskIds) {
+function savePlan(date, childId, planObj) {
   const plans = getPlans();
   if (!plans[date]) {
     plans[date] = {};
   }
-  plans[date][childId] = [...taskIds];
+  plans[date][childId] = { ...EMPTY_PLAN, ...planObj };
   savePlans(plans);
 }
 
@@ -226,6 +259,7 @@ if (typeof module !== 'undefined' && module.exports) {
     saveRecords,
     getDayRecord,
     setTaskDone,
+    setTaskGuess,
     getSettings,
     saveSettings,
     getTaskLibrary,

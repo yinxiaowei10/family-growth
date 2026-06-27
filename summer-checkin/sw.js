@@ -1,4 +1,4 @@
-const CACHE_NAME = 'summer-checkin-v7';
+const CACHE_NAME = 'summer-checkin-v8';
 const STATIC_ASSETS = [
   './',
   './index.html',
