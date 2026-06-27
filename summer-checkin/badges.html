@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#FFB347">
   <title>徽章墙 · 成长星球</title>
+  <script>
+    (function() {
+      const theme = localStorage.getItem('growthPlanetTheme') || 'theme-default';
+      document.documentElement.className = theme;
+    })();
+  </script>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/theme-switcher.css">
   <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
 </head>
 <body>

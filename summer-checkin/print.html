@@ -4,8 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>打印每周打卡表 · 成长星球</title>
+  <script>
+    (function() {
+      const theme = localStorage.getItem('growthPlanetTheme') || 'theme-default';
+      document.documentElement.className = theme;
+    })();
+  </script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/theme-switcher.css">
   <link rel="stylesheet" href="css/print.css">
 </head>
 <body>

@@ -1,0 +1,207 @@
+:root {
+  --theme-preview-default: linear-gradient(135deg, #6B5B95, #FFB347);
+  --theme-preview-nature: linear-gradient(135deg, #81C784, #4FC3F7);
+  --theme-preview-scifi: linear-gradient(135deg, #0B1026, #00E5FF);
+  --theme-preview-warm: linear-gradient(135deg, #FF8A65, #FFD54F);
+}
+
+/* 默认主题：使用 base.css 里的 :root 变量 */
+html.theme-default {
+  /* 不覆盖，保持原样 */
+}
+
+/* 清新自然 */
+html.theme-nature {
+  --bg-color: #F5F9F6;
+  --paper-color: #FFFFFF;
+  --ink-color: #2C3E33;
+  --muted-color: #7D8C82;
+  --accent-orange: #81C784;
+  --accent-blue: #4FC3F7;
+  --accent-purple: #BA68C8;
+  --accent-green: #66BB6A;
+  --accent-red: #EF5350;
+  --accent-yellow: #FFF176;
+  --border-color: #3E5A48;
+  --shadow: 3px 3px 0px rgba(62, 90, 72, 0.12);
+}
+
+/* 星际科幻 */
+html.theme-scifi {
+  --bg-color: #0B1026;
+  --paper-color: #151B3D;
+  --ink-color: #E0E7FF;
+  --muted-color: #8C9BD0;
+  --accent-orange: #00E5FF;
+  --accent-blue: #7C4DFF;
+  --accent-purple: #EA80FC;
+  --accent-green: #69F0AE;
+  --accent-red: #FF5252;
+  --accent-yellow: #FFD740;
+  --border-color: #303A6B;
+  --shadow: 0 0 12px rgba(0, 229, 255, 0.22);
+}
+
+/* 暖橙活力 */
+html.theme-warm {
+  --bg-color: #FFF7F0;
+  --paper-color: #FFFFFF;
+  --ink-color: #4A2C20;
+  --muted-color: #9E7E6D;
+  --accent-orange: #FF8A65;
+  --accent-blue: #4DD0E1;
+  --accent-purple: #F06292;
+  --accent-green: #AED581;
+  --accent-red: #E57373;
+  --accent-yellow: #FFD54F;
+  --border-color: #6D4C41;
+  --shadow: 3px 3px 0px rgba(109, 76, 65, 0.12);
+}
+
+/* 主题对 portal 首页的覆盖 */
+html.theme-nature .portal-page {
+  background: linear-gradient(180deg, #E8F5E9 0%, #E1F5FE 50%, #FFFDE7 100%);
+  color: var(--ink-color);
+}
+
+html.theme-nature .portal-title,
+html.theme-nature .portal-section-title,
+html.theme-nature .portal-footer {
+  color: var(--ink-color);
+}
+
+html.theme-nature .portal-subtitle {
+  color: var(--muted-color);
+}
+
+html.theme-nature .module-card {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: var(--border-color);
+  color: var(--ink-color);
+}
+
+html.theme-nature .module-card.active {
+  background: linear-gradient(135deg, #fff 0%, #F1F8E9 100%);
+  border-color: var(--accent-green);
+}
+
+html.theme-nature .module-arrow {
+  color: var(--accent-green);
+}
+
+html.theme-warm .portal-page {
+  background: linear-gradient(180deg, #FFF3E0 0%, #FFEBEE 50%, #FFFDE7 100%);
+  color: var(--ink-color);
+}
+
+html.theme-warm .portal-title,
+html.theme-warm .portal-section-title,
+html.theme-warm .portal-footer {
+  color: var(--ink-color);
+}
+
+html.theme-warm .portal-subtitle {
+  color: var(--muted-color);
+}
+
+html.theme-warm .module-card {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: var(--border-color);
+  color: var(--ink-color);
+}
+
+html.theme-warm .module-card.active {
+  background: linear-gradient(135deg, #fff 0%, #FFF3E0 100%);
+  border-color: var(--accent-orange);
+}
+
+html.theme-warm .module-arrow {
+  color: var(--accent-orange);
+}
+
+html.theme-scifi .portal-page {
+  background: linear-gradient(180deg, #0B1026 0%, #1A237E 50%, #311B92 100%);
+  color: #E0E7FF;
+}
+
+html.theme-scifi .portal-title,
+html.theme-scifi .portal-section-title,
+html.theme-scifi .portal-footer {
+  color: #E0E7FF;
+}
+
+html.theme-scifi .portal-subtitle {
+  color: #8C9BD0;
+}
+
+html.theme-scifi .module-card {
+  background: rgba(21, 27, 61, 0.95);
+  border-color: #303A6B;
+  color: #E0E7FF;
+}
+
+html.theme-scifi .module-card.active {
+  background: linear-gradient(135deg, #151B3D 0%, #1A237E 100%);
+  border-color: var(--accent-orange);
+}
+
+html.theme-scifi .module-arrow {
+  color: var(--accent-orange);
+}
+
+/* 主题选择器 */
+.theme-section {
+  margin-bottom: 24px;
+}
+
+.theme-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--paper-color);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+
+.theme-option:hover {
+  transform: translateY(-2px);
+}
+
+.theme-option.active {
+  border-width: 3px;
+  border-color: var(--accent-orange);
+}
+
+.theme-preview {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.theme-preview-default { background: var(--theme-preview-default); }
+.theme-preview-nature { background: var(--theme-preview-nature); }
+.theme-preview-scifi { background: var(--theme-preview-scifi); }
+.theme-preview-warm { background: var(--theme-preview-warm); }
+
+.theme-label {
+  font-family: var(--font-hand);
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.theme-desc {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+}

@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initTaskLibrary();
   initServiceWorker();
   initNavigation();
   renderPortalSnapshot();
+  renderThemeSelector();
 });
 
 function initServiceWorker() {
@@ -59,6 +61,62 @@ function renderPortalSnapshot() {
         </div>
       `;
     })
+    .join('');
+}
+
+const THEME_KEY = 'growthPlanetTheme';
+const AVAILABLE_THEMES = [
+  { id: 'theme-default', name: '默认', desc: '经典成长星球' },
+  { id: 'theme-nature', name: '清新自然', desc: '薄荷绿 + 天空蓝' },
+  { id: 'theme-scifi', name: '星际科幻', desc: '深紫 + 荧光蓝' },
+  { id: 'theme-warm', name: '暖橙活力', desc: '活力橙 + 珊瑚粉' }
+];
+
+function getSavedTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY) || 'theme-default';
+  } catch (e) {
+    return 'theme-default';
+  }
+}
+
+function saveTheme(theme) {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (e) {
+    console.error('保存主题失败', e);
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.className = theme;
+}
+
+function initTheme() {
+  applyTheme(getSavedTheme());
+}
+
+function setTheme(theme) {
+  applyTheme(theme);
+  saveTheme(theme);
+  renderThemeSelector();
+}
+
+function renderThemeSelector() {
+  const container = document.getElementById('theme-selector');
+  if (!container) return;
+
+  const current = getSavedTheme();
+  container.innerHTML = AVAILABLE_THEMES
+    .map((t) => `
+      <div class="theme-option ${t.id === current ? 'active' : ''}" onclick="setTheme('${t.id}')">
+        <div class="theme-preview theme-preview-${t.id.replace('theme-', '')}"></div>
+        <div>
+          <div class="theme-label">${t.name}</div>
+          <div class="theme-desc">${t.desc}</div>
+        </div>
+      </div>
+    `)
     .join('');
 }
 
