@@ -59,6 +59,9 @@
           <p>活动库加载中...</p>
         </div>
       </div>
+      <div class="text-center mt-2">
+        <button type="button" class="btn btn-small" id="open-template">+ 从模板添加任务</button>
+      </div>
     </div>
   </div>
 
@@ -86,6 +89,18 @@
         <button type="button" class="btn" id="cancel-time">取消</button>
         <button type="button" class="btn btn-secondary" id="skip-time">按预估</button>
         <button type="button" class="btn btn-primary" id="confirm-time">完成打卡</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="template-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 class="text-center">从模板添加任务</h3>
+      <p class="text-center" style="font-size: 0.8rem; color: var(--muted-color);">选一个分类，点击任务加入当前孩子的任务库</p>
+      <div id="template-categories" class="template-categories"></div>
+      <div id="template-items" class="template-items"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="close-template">关闭</button>
       </div>
     </div>
   </div>
@@ -150,6 +165,8 @@
       document.getElementById('skip-time').addEventListener('click', skipTimeModal);
       document.getElementById('cancel-time').addEventListener('click', closeTimeModal);
       document.getElementById('uncomplete-task').addEventListener('click', uncompleteTask);
+      document.getElementById('open-template').addEventListener('click', openTemplateModal);
+      document.getElementById('close-template').addEventListener('click', closeTemplateModal);
     });
   </script>
 </body>

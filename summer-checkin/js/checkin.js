@@ -260,6 +260,85 @@ function confirmGuessModal() {
   renderPlan(date, childId);
 }
 
+function openTemplateModal() {
+  const modal = document.getElementById('template-modal');
+  const categoriesContainer = document.getElementById('template-categories');
+  const itemsContainer = document.getElementById('template-items');
+  const activeChild = document.querySelector('.tab.active')?.dataset.child || 'tongtong';
+
+  categoriesContainer.innerHTML = Object.entries(TASK_TEMPLATES)
+    .map(([key, cat]) => `
+      <button type="button" class="template-category-btn" data-category="${key}">${cat.label}</button>
+    `)
+    .join('');
+
+  categoriesContainer.querySelectorAll('.template-category-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      renderTemplateItems(btn.dataset.category, activeChild, itemsContainer);
+    });
+  });
+
+  // 默认渲染第一个分类
+  const firstKey = Object.keys(TASK_TEMPLATES)[0];
+  renderTemplateItems(firstKey, activeChild, itemsContainer);
+
+  modal.classList.remove('hidden');
+}
+
+function renderTemplateItems(categoryKey, childId, container) {
+  const category = TASK_TEMPLATES[categoryKey];
+  if (!category) return;
+
+  const library = getTaskLibrary();
+  const existingTexts = new Set((library[childId] || []).map((t) => t.text));
+
+  container.innerHTML = category.items
+    .map((item) => {
+      const alreadyAdded = existingTexts.has(item.text);
+      return `
+        <button type="button" class="template-item-btn ${alreadyAdded ? 'added' : ''}"
+                onclick="addTemplateTask('${childId}', '${categoryKey}', '${item.text}', this)"
+                ${alreadyAdded ? 'disabled' : ''}>
+          <span class="template-item-icon">${item.icon}</span>
+          <span class="template-item-text">${item.text}</span>
+          <span class="template-item-meta">${item.estimatedMinutes}分钟</span>
+        </button>
+      `;
+    })
+    .join('');
+}
+
+function addTemplateTask(childId, categoryKey, taskText, btn) {
+  const category = TASK_TEMPLATES[categoryKey];
+  const item = category.items.find((i) => i.text === taskText);
+  if (!item) return;
+
+  const library = getTaskLibrary();
+  if (!library[childId]) library[childId] = [];
+
+  const newTask = {
+    id: 'task_' + Date.now(),
+    text: item.text,
+    icon: item.icon,
+    estimatedMinutes: item.estimatedMinutes,
+    duration: `${item.estimatedMinutes}分钟`,
+    category: item.category,
+    optional: item.optional || false
+  };
+  library[childId].push(newTask);
+  saveTaskLibrary(library);
+
+  btn.classList.add('added');
+  btn.disabled = true;
+
+  const dateInput = document.getElementById('checkin-date');
+  renderActivityLibrary(dateInput.value, childId);
+}
+
+function closeTemplateModal() {
+  document.getElementById('template-modal').classList.add('hidden');
+}
+
 function handleTaskClick(date, childId, taskId) {
   const dayRecord = getDayRecord(date, childId);
   const record = dayRecord[taskId];

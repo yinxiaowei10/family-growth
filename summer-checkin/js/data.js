@@ -107,7 +107,45 @@ const DEFAULT_TASKS = {
   ]
 };
 
-let TASKS = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+const TASK_TEMPLATES = {
+  daily: {
+    label: '日常生活',
+    items: [
+      { text: '刷牙', icon: '🦷', estimatedMinutes: 5, category: 'health' },
+      { text: '整理书包', icon: '🎒', estimatedMinutes: 10, category: 'life' },
+      { text: '收拾玩具', icon: '🧸', estimatedMinutes: 15, category: 'life' },
+      { text: '自己穿衣服', icon: '👕', estimatedMinutes: 10, category: 'life' }
+    ]
+  },
+  study: {
+    label: '学习成长',
+    items: [
+      { text: '阅读30分钟', icon: '📚', estimatedMinutes: 30, category: 'chinese' },
+      { text: '数学练习', icon: '🔢', estimatedMinutes: 20, category: 'math' },
+      { text: '英语听力', icon: '🔤', estimatedMinutes: 20, category: 'english' },
+      { text: '练字', icon: '✍️', estimatedMinutes: 15, category: 'chinese' },
+      { text: '写日记', icon: '📝', estimatedMinutes: 15, category: 'chinese' }
+    ]
+  },
+  health: {
+    label: '健康运动',
+    items: [
+      { text: '户外运动', icon: '☀️', estimatedMinutes: 120, category: 'health' },
+      { text: '跳绳', icon: '🏃', estimatedMinutes: 15, category: 'health' },
+      { text: '午睡', icon: '😴', estimatedMinutes: 30, category: 'health', optional: true },
+      { text: '喝水8杯', icon: '💧', estimatedMinutes: 5, category: 'health' }
+    ]
+  },
+  interest: {
+    label: '兴趣爱好',
+    items: [
+      { text: '画画', icon: '🎨', estimatedMinutes: 30, category: 'art' },
+      { text: '练琴', icon: '🎹', estimatedMinutes: 30, category: 'music' },
+      { text: '搭积木', icon: '🧱', estimatedMinutes: 30, category: 'play' },
+      { text: '下棋', icon: '♟️', estimatedMinutes: 20, category: 'play' }
+    ]
+  }
+};
 
 const BADGES = [
   {
@@ -444,7 +482,7 @@ if (typeof module !== 'undefined' && module.exports) {
     TOTAL_WEEKS,
     CHILDREN,
     DEFAULT_TASKS,
-    TASKS,
+    TASK_TEMPLATES,
     BADGES,
     MAP_NODES,
     getMaxStreak,
