@@ -1,4 +1,4 @@
-const CACHE_NAME = 'summer-checkin-v9';
+const CACHE_NAME = 'summer-checkin-v10';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
   './stats.html',
   './print.html',
   './rewards.html',
+  './pet.html',
   './manifest.json',
   './css/base.css',
   './css/components.css',
@@ -23,7 +24,8 @@ const STATIC_ASSETS = [
   './js/badges.js',
   './js/stats.js',
   './js/app.js',
-  './js/rewards.js'
+  './js/rewards.js',
+  './js/pet.js'
 ];
 
 self.addEventListener('install', (event) => {

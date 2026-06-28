@@ -355,6 +355,36 @@ function getTotalSavedMinutes(records, childId) {
   return saved;
 }
 
+function calculatePetFood(records, childId) {
+  let food = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt' || taskId.startsWith('__redeem_')) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (completed) food += 5;
+    }
+  }
+  return food;
+}
+
+function calculatePetXP(records, childId) {
+  let xp = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt' || taskId.startsWith('__redeem_')) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (completed) xp += 10;
+    }
+  }
+  return xp;
+}
+
 function hasBigTimeSave(records, childId, threshold = 10) {
   for (const date in records) {
     const dayRecord = records[date]?.[childId];
@@ -427,6 +457,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getTotalSavedMinutes,
     hasBigTimeSave,
     calculatePoints,
+    calculatePetFood,
+    calculatePetXP,
     getUnlockedBadgeCount
   };
 }

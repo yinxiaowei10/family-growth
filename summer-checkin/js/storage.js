@@ -4,6 +4,7 @@ const TASK_LIBRARY_KEY = 'summerCheckinTaskLibrary';
 const PLANS_KEY = 'summerCheckinPlans';
 const REWARDS_KEY = 'summerCheckinRewards';
 const REDEMPTIONS_KEY = 'summerCheckinRedemptions';
+const PET_KEY = 'summerCheckinPets';
 
 function getRecords() {
   try {
@@ -350,6 +351,116 @@ function redeemReward(childId, rewardId, cost, rewardName, rewardIcon = '🎁') 
   return { success: true };
 }
 
+function getPetData() {
+  try {
+    const data = localStorage.getItem(PET_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch (e) {
+    console.error('读取宠物数据失败', e);
+    return {};
+  }
+}
+
+function savePetData(pets) {
+  try {
+    localStorage.setItem(PET_KEY, JSON.stringify(pets));
+  } catch (e) {
+    console.error('保存宠物数据失败', e);
+  }
+}
+
+function getPet(childId) {
+  const pets = getPetData();
+  if (pets[childId]) return pets[childId];
+
+  const defaultPets = {
+    tongtong: { id: 'tongtong', name: '泡泡龙', emoji: '🥚', level: 1, xp: 0, food: 0, stage: 'egg' },
+    songsong: { id: 'songsong', name: '团团兽', emoji: '🥚', level: 1, xp: 0, food: 0, stage: 'egg' }
+  };
+  return defaultPets[childId] || { id: childId, name: '小萌宠', emoji: '🥚', level: 1, xp: 0, food: 0, stage: 'egg' };
+}
+
+function feedPet(childId) {
+  const pets = getPetData();
+  const pet = pets[childId] || getPet(childId);
+  const records = getRecords();
+
+  let earnedFood = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt' || taskId.startsWith('__redeem_')) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (completed) earnedFood += 5;
+    }
+  }
+
+  const availableFood = Math.max(0, earnedFood - (pet.totalFed || 0));
+
+  if (availableFood < 10) {
+    return { success: false, message: '宠物粮不足，快去完成任务吧！' };
+  }
+
+  pet.totalFed = (pet.totalFed || 0) + 10;
+  pet.food = Math.max(0, pet.food + 10);
+  pet.xp = (pet.xp || 0) + 10;
+
+  const result = checkPetLevelUp(pet);
+  pets[childId] = pet;
+  savePetData(pets);
+
+  return { success: true, pet, leveledUp: result.leveledUp, evolved: result.evolved };
+}
+
+function checkPetLevelUp(pet) {
+  const stages = [
+    { stage: 'egg', emoji: '🥚', level: 1 },
+    { stage: 'baby', emoji: '🐣', level: 2 },
+    { stage: 'child', emoji: '🐥', level: 5 },
+    { stage: 'youth', emoji: '🦕', level: 10 },
+    { stage: 'adult', emoji: '🐉', level: 20 }
+  ];
+
+  let leveledUp = false;
+  let evolved = false;
+  const xpNeeded = pet.level * 20;
+
+  if (pet.xp >= xpNeeded) {
+    pet.xp -= xpNeeded;
+    pet.level += 1;
+    leveledUp = true;
+
+    const nextStage = stages.find((s) => s.level === pet.level);
+    if (nextStage) {
+      pet.stage = nextStage.stage;
+      pet.emoji = nextStage.emoji;
+      evolved = true;
+    }
+  }
+
+  return { leveledUp, evolved };
+}
+
+function getPetStageLabel(stage) {
+  const labels = {
+    egg: '蛋蛋',
+    baby: '幼崽',
+    child: '童年',
+    youth: '少年',
+    adult: '成年'
+  };
+  return labels[stage] || '成长中';
+}
+
+function clearAllRecords() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(PLANS_KEY);
+  localStorage.removeItem(REDEMPTIONS_KEY);
+  localStorage.removeItem(PET_KEY);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     getRecords,
@@ -372,6 +483,11 @@ if (typeof module !== 'undefined' && module.exports) {
     getRedemptions,
     saveRedemptions,
     redeemReward,
+    getPetData,
+    savePetData,
+    getPet,
+    feedPet,
+    getPetStageLabel,
     exportRecords,
     exportRecordsToCSV,
     importRecords,
