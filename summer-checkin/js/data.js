@@ -380,6 +380,10 @@ function calculatePoints(records, childId) {
     if (!dayRecord) continue;
     for (const taskId in dayRecord) {
       if (taskId === 'updatedAt') continue;
+      if (taskId.startsWith('__redeem_')) {
+        points -= dayRecord[taskId].cost || 0;
+        continue;
+      }
       const task = TASKS[childId]?.find((t) => t.id === taskId);
       if (!task) continue;
       const entry = dayRecord[taskId];
@@ -396,7 +400,7 @@ function calculatePoints(records, childId) {
     }
   }
   points += Math.floor(getMaxStreak(records, childId) / 3) * 20;
-  return points;
+  return Math.max(0, points);
 }
 
 function getUnlockedBadgeCount(records, childId, excludeId = null) {

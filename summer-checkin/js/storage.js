@@ -2,6 +2,8 @@ const STORAGE_KEY = 'summerCheckinRecords';
 const SETTINGS_KEY = 'summerCheckinSettings';
 const TASK_LIBRARY_KEY = 'summerCheckinTaskLibrary';
 const PLANS_KEY = 'summerCheckinPlans';
+const REWARDS_KEY = 'summerCheckinRewards';
+const REDEMPTIONS_KEY = 'summerCheckinRedemptions';
 
 function getRecords() {
   try {
@@ -251,6 +253,101 @@ function importRecords(jsonString) {
 function clearAllRecords() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(PLANS_KEY);
+  localStorage.removeItem(REDEMPTIONS_KEY);
+}
+
+function getRewards() {
+  try {
+    const data = localStorage.getItem(REWARDS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error('读取心愿奖励失败', e);
+    return [];
+  }
+}
+
+function saveRewards(rewards) {
+  try {
+    localStorage.setItem(REWARDS_KEY, JSON.stringify(rewards));
+  } catch (e) {
+    console.error('保存心愿奖励失败', e);
+  }
+}
+
+function getRedemptions() {
+  try {
+    const data = localStorage.getItem(REDEMPTIONS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error('读取兑换记录失败', e);
+    return [];
+  }
+}
+
+function saveRedemptions(redemptions) {
+  try {
+    localStorage.setItem(REDEMPTIONS_KEY, JSON.stringify(redemptions));
+  } catch (e) {
+    console.error('保存兑换记录失败', e);
+  }
+}
+
+function redeemReward(childId, rewardId, cost, rewardName, rewardIcon = '🎁') {
+  const records = getRecords();
+  const allRedemptions = getRedemptions();
+  const childRedemptions = allRedemptions.filter((r) => r.childId === childId);
+  const totalSpent = childRedemptions.reduce((sum, r) => sum + (r.cost || 0), 0);
+  let earned = 0;
+  for (const date in records) {
+    const dayRecord = records[date]?.[childId];
+    if (!dayRecord) continue;
+    for (const taskId in dayRecord) {
+      if (taskId === 'updatedAt' || taskId.startsWith('__redeem_')) continue;
+      const task = TASKS[childId]?.find((t) => t.id === taskId);
+      if (!task) continue;
+      const entry = dayRecord[taskId];
+      const completed = typeof entry === 'object' ? entry.completed : !!entry;
+      if (!completed) continue;
+      earned += 10;
+      const actual = typeof entry === 'object' ? entry.actualMinutes : task.estimatedMinutes;
+      const saved = task.estimatedMinutes - actual;
+      if (saved >= 5) earned += 5;
+      else if (saved >= -2) earned += 2;
+    }
+  }
+  earned += Math.floor((typeof getMaxStreak === 'function' ? getMaxStreak(records, childId) : 0) / 3) * 20;
+  const points = Math.max(0, earned - totalSpent);
+  if (points < cost) {
+    return { success: false, message: '积分不足' };
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  if (!records[today]) records[today] = {};
+  if (!records[today][childId]) records[today][childId] = {};
+  records[today][childId][`__redeem_${Date.now()}`] = {
+    completed: true,
+    guessedMinutes: 0,
+    actualMinutes: 0,
+    completedAt: new Date().toISOString(),
+    rewardId,
+    rewardName,
+    rewardIcon,
+    cost
+  };
+  saveRecords(records);
+
+  const redemptions = getRedemptions();
+  redemptions.unshift({
+    childId,
+    rewardId,
+    rewardName,
+    rewardIcon,
+    cost,
+    redeemedAt: new Date().toISOString()
+  });
+  saveRedemptions(redemptions);
+
+  return { success: true };
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -270,6 +367,11 @@ if (typeof module !== 'undefined' && module.exports) {
     savePlans,
     getPlan,
     savePlan,
+    getRewards,
+    saveRewards,
+    getRedemptions,
+    saveRedemptions,
+    redeemReward,
     exportRecords,
     exportRecordsToCSV,
     importRecords,

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#6B5B95">
+  <title>心愿商店 · 成长星球</title>
+  <script>
+    (function() {
+      const theme = localStorage.getItem('growthPlanetTheme') || 'theme-default';
+      document.documentElement.className = theme;
+    })();
+  </script>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/theme-switcher.css">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+  <style>
+    .reward-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .reward-card {
+      background: var(--paper-color);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 14px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .reward-icon {
+      font-size: 2.5rem;
+    }
+    .reward-name {
+      font-family: var(--font-hand);
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    .reward-cost {
+      font-size: 0.85rem;
+      color: var(--accent-orange);
+      font-weight: bold;
+    }
+    .reward-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .points-display {
+      text-align: center;
+      font-family: var(--font-hand);
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+    .empty-rewards {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted-color);
+    }
+    .redemption-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .redemption-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: var(--bg-color);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+    }
+    .admin-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .admin-form input {
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 1rem;
+    }
+    .tabs.reward-tabs {
+      margin-bottom: 16px;
+    }
+    .redeem-success {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--paper-color);
+      border: 3px solid var(--accent-green);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      min-width: 260px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container page-content">
+    <div class="paper-card">
+      <h1 class="text-center">🎁 心愿商店</h1>
+      <div class="tabs reward-tabs">
+        <button class="tab active" data-tab="shop">兑换</button>
+        <button class="tab" data-tab="record">记录</button>
+        <button class="tab" data-tab="manage">管理</button>
+      </div>
+
+      <div class="points-display">
+        ⭐ 我的积分：<span id="current-points">0</span>
+      </div>
+
+      <div id="shop-panel" class="tab-panel">
+        <div id="reward-list" class="reward-grid">
+          <div class="empty-rewards">奖励加载中...</div>
+        </div>
+      </div>
+
+      <div id="record-panel" class="tab-panel hidden">
+        <div id="redemption-list" class="redemption-list">
+          <div class="empty-rewards">还没有兑换记录</div>
+        </div>
+      </div>
+
+      <div id="manage-panel" class="tab-panel hidden">
+        <form id="reward-form" class="admin-form">
+          <input type="text" id="reward-icon" placeholder="图标 emoji，如 🍦" maxlength="2" value="🍦">
+          <input type="text" id="reward-name" placeholder="奖励名称，如 冰淇淋" required>
+          <input type="number" id="reward-cost" placeholder="积分价格" min="1" required>
+          <button type="submit" class="btn btn-primary">添加奖励</button>
+        </form>
+        <div class="mt-2">
+          <button type="button" class="btn btn-small" id="seed-rewards">一键添加默认奖励</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-bar">
+    <a href="index.html">
+      <span class="nav-icon">🪐</span>
+      <span>星球</span>
+    </a>
+    <a href="checkin.html">
+      <span class="nav-icon">📝</span>
+      <span>今日</span>
+    </a>
+    <a href="badges.html">
+      <span class="nav-icon">🎖️</span>
+      <span>勋章</span>
+    </a>
+    <a href="stats.html">
+      <span class="nav-icon">📈</span>
+      <span>战绩</span>
+    </a>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/rewards.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initRewardsPage();
+
+      document.querySelectorAll('.reward-tabs .tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.reward-tabs .tab').forEach((t) => t.classList.remove('active'));
+          tab.classList.add('active');
+          document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
+          document.getElementById(`${tab.dataset.tab}-panel`).classList.remove('hidden');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
